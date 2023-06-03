@@ -48,12 +48,12 @@ class StockServiceTest {
     }
 
     @Test
-    public void 동시에_100개_요청() {
+    public void 동시에_100개_요청() throws InterruptedException {
         int threadCount = 100;
 
         // 비동기로 실행하는 작업을 단순화하여 사용할 수 있게 해주는 자바 api
         ExecutorService executorService = Executors.newFixedThreadPool(32);
-        CountDownLatch latch = new CountDownLatch(threadCount); // 100개의 요창이 끝날 떄 까지 기다려야 해서 사용
+        CountDownLatch latch = new CountDownLatch(threadCount); // 100개의 요창이 끝날 떄 까지 기다려야 해서 사용 // 다른 쓰레드의 작업이 완료될 때 까지 기다림
 
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
@@ -65,5 +65,10 @@ class StockServiceTest {
             });
         }
 
+        latch.await();
+
+        Stock stock = stockRepository.findById(1L).orElseThrow();
+
+        assertEquals(0L, stock.getQuantity());
     }
 }
