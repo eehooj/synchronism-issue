@@ -4,6 +4,7 @@ import com.example.stock.domain.Stock;
 import com.example.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -16,6 +17,15 @@ public class StockService {
 
     //@Transactional
     public synchronized void decrease(Long id, Long quantity) {
+        Stock stock = stockRepository.findById(id).orElseThrow();
+
+        stock.decrease(quantity);
+
+        stockRepository.saveAndFlush(stock);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW) // 부모의 트랜젝션과 별도로 실행 되어야 함
+    public void decreaseNamed(Long id, Long quantity) {
         Stock stock = stockRepository.findById(id).orElseThrow();
 
         stock.decrease(quantity);
