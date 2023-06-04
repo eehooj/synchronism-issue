@@ -24,6 +24,15 @@ public class StockService {
         stockRepository.saveAndFlush(stock);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void decreaseRedis(Long id, Long quantity) {
+        Stock stock = stockRepository.findById(id).orElseThrow();
+
+        stock.decrease(quantity);
+
+        stockRepository.saveAndFlush(stock);
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW) // 부모의 트랜젝션과 별도로 실행 되어야 함
     public void decreaseNamed(Long id, Long quantity) {
         Stock stock = stockRepository.findById(id).orElseThrow();
